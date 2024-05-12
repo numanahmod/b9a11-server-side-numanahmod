@@ -39,6 +39,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     const jobsCollection = client.db('postJobsDB').collection('postedJobs')
+    const applyCollection = client.db('postJobsDB').collection('appliedJobs')
     // get all jobs data from db 
     app.get('/postedJobs', async(req, res) =>{
         const result = await jobsCollection.find().toArray()
@@ -52,6 +53,20 @@ async function run() {
         const query = {_id: new ObjectId(id) }
         const result = await jobsCollection.findOne(query)
         res.send(result)
+    })
+// save a  applied job 
+    app.post('/appliedJobs', async (req, res) =>{
+      const appliedData = req.body;
+      
+      const result = await applyCollection.insertOne(appliedData);
+      res.send(result) 
+    })
+// add a job job 
+    app.post('/postedJobs', async (req, res) =>{
+      const jobData = req.body;
+      
+      const result = await jobsCollection.insertOne(jobData);
+      res.send(result) 
     })
 
 
