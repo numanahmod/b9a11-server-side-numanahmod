@@ -69,6 +69,13 @@ async function run() {
       res.send(result) 
     })
 
+  // get my added jobs 
+  app.get('/myAddedJobs/:email', async(req, res) =>{
+    
+    const result = await jobsCollection.find({buyer_email:req.params.email}).toArray()
+    res.send(result)
+  })
+
 
 
     // Send a ping to confirm a successful connection
