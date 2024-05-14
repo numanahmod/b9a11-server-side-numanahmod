@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 require('dotenv').config()
@@ -40,6 +41,17 @@ async function run() {
     // await client.connect();
     const jobsCollection = client.db('postJobsDB').collection('postedJobs')
     const applyCollection = client.db('postJobsDB').collection('appliedJobs')
+   
+    // jwt generate 
+    app.post('/jwt', async(req, res)=>{
+      const user = req.body 
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{
+        expiresIn:'365d',
+      })
+      res.send({token})
+    })
+   
+   
     // get all jobs data from db 
     app.get('/postedJobs', async(req, res) =>{
         const result = await jobsCollection.find().toArray()
