@@ -98,6 +98,12 @@ app.put('/job/:id', async(req, res) =>{
   res.send(result)
 })
 
+// get my applied jobs 
+app.get('/getMyAppliedJobs/:email', async(req, res) =>{
+    
+  const result = await applyCollection.find({email:req.params.email}).toArray()
+  res.send(result)
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
