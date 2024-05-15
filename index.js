@@ -54,6 +54,7 @@ async function run() {
    
     // get all jobs data from db 
     app.get('/postedJobs', async(req, res) =>{
+      
         const result = await jobsCollection.find().toArray()
 
         res.send(result)
@@ -70,7 +71,29 @@ async function run() {
     app.post('/appliedJobs', async (req, res) =>{
       const appliedData = req.body;
       
+      const query = {
+        email: appliedData.email,
+        jobId: appliedData.jobId,
+      }
+
+      const alreadyApplied = await applyCollection.findOne(query)
+      console.log(alreadyApplied)
+      if (alreadyApplied) {
+        return res
+          .status(400)
+          .send('You have already applied on this job.')
+          
+      } console.log('Applied data ', appliedData);
+      const jobQuery = { jobId: appliedData.jobId}
       const result = await applyCollection.insertOne(appliedData);
+
+       // update apply count in jobs collection
+       const updateDoc = {
+      $set: { $inc: { job_applicants: 1 }},
+      }
+      
+      const updateApplyCount = await applyCollection.updateOne(jobQuery, updateDoc)
+      console.log( updateApplyCount)
       res.send(result) 
     })
 // add a job job 
@@ -111,11 +134,37 @@ app.put('/job/:id', async(req, res) =>{
 })
 
 // get my applied jobs 
-app.get('/getMyAppliedJobs/:email', async(req, res) =>{
+// app.get('/getMyAppliedJobs/:email', async(req, res) =>{
+//   const email = req.params.email
+  
     
-  const result = await applyCollection.find({email:req.params.email}).toArray()
+//   const result = await applyCollection.find({email:req.params.email}).toArray()
+//   res.send(result)
+// })
+
+app.get('/getMyAppliedJobs/:email', async(req, res) =>{
+  const email = req.params.email
+  const filter = req.query.filter
+  let query = {email}
+  if (filter) query = {category: filter}
+  
+    
+  const result = await applyCollection.find(query).toArray()
   res.send(result)
 })
+
+// filter 
+
+// app.get('/getMyAppliedJobs', async(req, res) =>{
+//   const filter = req.query.filter
+// let query = {}
+// if (filter) query.category = filter
+
+//   const result = await jobsCollection.find(query).toArray()
+//   res.send(result)
+// })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
